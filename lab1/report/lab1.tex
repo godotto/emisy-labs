@@ -94,6 +94,34 @@ Its address is 41$_{16}$, so the command for setting is 11000001$_2$. The follow
 of printing name is the same as in the case of index number. Program again ends with an infinite loop.
 
 \section{Final questions}
-\subsection{How is 4 bit data bus configured in 2x16 LCD display?}
+\subsection*{How is 4 bit data bus configured in 2x16 LCD display?}
+In order to use 4-bit mode, function set command has to be executed with 0010$_2$ in the
+upper half of byte. After sending it, display ignores the lower nibble. This is why function
+set is has been executed twice in the task with 4-bits -- first execution has set mode to 4-bit one.
+
+\subsection*{Why is it convenient to use 12 MHz system clock with 8051 microcontrollers?}
+It is convenient because one 8051's cycle is equal to 12 clock's oscillations. When
+oscillations are of 12 MHz frequency one cycle is equal to 1$\mu$s. It makes precise
+time calculations much easier.
+
+\subsection*{Are delay methods presented in the tutorial part of the instruction optimal? Is it possible to generate precise
+time intervals using loops and NOP commands?}
+These methods are optimal because they allow for precise time calculation, it is possible
+to adjust execution time to one 1$\mu$s as described in the previous answer. It is
+also possible to use \texttt{nop} command for delay purpose, however without loops they
+are sufficient only for very small delays. They could be combined with loops for longer delays
+but decrementing some value in loop makes a very good delay and there is no point in using 
+\texttt{nop} in such case.
+
+\subsection*{How many 2x16 displays can you connect to the AT89C4051 microcontroller without using any additional
+ICs?}
+4 GPIO pins may be used as common data bus, displays may also have one common R/S pin.
+Writing character occures only when E pin is set, so it is the only pin that should be
+connected to the individual GPIO pin. It gives 4 + 1 common pins and 11 for E pin, thus
+it is possible to connect up to 11 LCDs.
+
+\section*{Declaration of authorship}
+I declare that this piece of work which is the basis for recognition of achieving learning outcomes in the EMISY course was completed on my own.
+
 
 \end{document}
