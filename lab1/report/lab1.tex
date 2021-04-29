@@ -65,5 +65,15 @@ Letter's code is written to the data bus and \texttt{send\textunderscore data} i
 It works almost in the same way as \texttt{send\textunderscore command}, the only difference is that
 it sets R/S pin to turn on writing mode. Code is finished with an infinite loop.
 
+\subsubsection{4-bit mode}
+The task was also to perform the same operation as described previously, this time in 4-bit,
+not in 8-bit mode. It means that only a half of data bus may be used. Difference is very
+small -- each command and character has to be sent in two halves. For instance
+instead of sending 00001110$_2$ (entry send mode) program sends firstly 0000$_2$ and then 1110$_2$.
+
+The same applies to printing letter M. First four most significant bits are passed
+(0100$_2$) and then four least significant bits (0100$_2$).
+
+\newpage
 
 \end{document}
