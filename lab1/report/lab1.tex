@@ -76,4 +76,24 @@ The same applies to printing letter M. First four most significant bits are pass
 
 \newpage
 
+\section{Task 2}
+\subsection{Code description}
+This task is performed only in 8-bit mode. Goal was to print in the first line index number
+starting from 5th position of display and then to print name in the second line staring from 2nd
+position. The way of writing characters is exactly the same as in task 1. The only difference is
+in initial curosr placement.
+
+To place cursor on 5th postiton in the first line command 10000100$_2$ has to be sent.
+Seven least significant bits are just the address in display's memory which corresponds
+to the 5th postiton (4$_{16}$). When cursor is set, program is writing characters into display's
+memory. After each character writing, a longer delay is needed (more than 1.53 ms). To achive
+that delay program calls \texttt{long\textunderscore delay}, which was mentioned earlier.
+
+After printing index number, cursor has to be moved again, this time to the second line (and second position).
+Its address is 41$_{16}$, so the command for setting is 11000001$_2$. The following sequence
+of printing name is the same as in the case of index number. Program again ends with an infinite loop.
+
+\section{Final questions}
+\subsection{How is 4 bit data bus configured in 2x16 LCD display?}
+
 \end{document}
