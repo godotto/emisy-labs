@@ -1,0 +1,6 @@
+# pictures used in reports
+*.png
+*.jpg
+
+# LaTeX build files
+*.synctex.gz
