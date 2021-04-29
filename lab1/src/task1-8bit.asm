@@ -5,9 +5,9 @@
 
 LCD_BUS     equ     P1
 LCD_RS      equ     P3.0
-LCD_E       equ
+LCD_E       equ     P3.1
 
-    mov     R0, #10     ; initialization - wait for approx. 30 ms (or even slightly more)
+    mov     R0, #20     ; initialization - wait for approx. 30 ms (or even slightly more)
 
 initial_wait:
     lcall   long_delay          ; call function which waits for more than 1.53 ms
@@ -31,18 +31,18 @@ initial_wait:
     jmp     $                   ; stay in infinte loop
 
 send_command:       ; send command from LCD's data bus
-    clr     LCD_RS
-    setb    LCD_E
+    clr     LCD_RS  ; set mode to command mode
+    setb    LCD_E   ; get data from bus
     clr     LCD_E
     ret
 
 send_data:          ; send character data from LCD's data bus
-    setb    LCD_RS
-    setb    LCD_E
+    setb    LCD_RS  ; set mode to write mode
+    setb    LCD_E   ; get data from bus
     clr     LCD_E
     ret
 
-long_delay:         ; wait for approx. 1.53 ms
+long_delay:         ; wait for approx. 1.53 ms: (256 us * 2 + 1 us) * 3 + 2 us + 3 us + 1 us
     mov     R1, #3  
 
 inner_loop_long_delay:
@@ -52,7 +52,7 @@ inner_loop_long_delay:
     djnz    R1, inner_loop_long_delay   ; loop that will perform actions 3 times
     ret
 
-short_delay:            ; wait for approx. 39 us
+short_delay:            ; wait for approx. 39 us: 1 us + 18 us * 2 + 2 us
     mov     R0, #18
     djnz    R0, $       ; loop that will perform actions 18 times
     ret
