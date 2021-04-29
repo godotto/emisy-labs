@@ -36,5 +36,34 @@ permanent write (W) mode. Contrast pin V$_0$ is connected to the standard in thi
 
 \section{Task 1}
 \subsection{Code description}
+\subsubsection{8-bit mode}
+Program starts with constants definition. In order to make the code more readable,
+pins has been assigned to mnemonic names. Then the main routine starts with display
+initialization. Assigning immiediate value to the register and decrementing it makes
+a simple loop which is required for delay. In the beginning microcontroller has to wait
+for display at least 30 miliseconds (in order to get proper voltage on display).
+Program calls \texttt{long\textunderscore delay} subroutine 20 times in order to wait this amount of time.
+
+\texttt{long\textunderscore delay} decrements number 256 to zero three times. It gives
+appoximately 1.53 ms (even more than this). This number is not coincidence -- such delay
+will be used later when several characters will be printed on display.
+
+After 30 ms of delay data bus is filled with value responsible for function set. 
+Display has to be set to two line mode. Then command is being sent by \texttt{send\textunderscore command}
+subroutine. It clears RS pin as command is being sent, not data about character. In the end
+it sets and then clears E pin. It is a signal for display to get data from data bus. The last
+step is a short delay before the next command. \texttt{short\textunderscore delay} subroutine
+is even simpler than \texttt{long\textunderscore delay}. It only decrements to zero value of 18.
+It results in delay of more than 39 $\mu$s which is necessary after executing each display's command.
+
+The next command is responsible for turning on the display and showing cursor. It is executed
+in the same manner as function set. The last step in initialization process is entering
+set mode. It is set to increment mode, so characters are appearing one after the other.
+
+When initialization is finished, program is writing letter M into display's DDRAM (in the first postiton of the first line).
+Letter's code is written to the data bus and \texttt{send\textunderscore data} is called.
+It works almost in the same way as \texttt{send\textunderscore command}, the only difference is that
+it sets R/S pin to turn on writing mode. Code is finished with an infinite loop.
+
 
 \end{document}
