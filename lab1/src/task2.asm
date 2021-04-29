@@ -25,7 +25,8 @@ initial_wait:
     lcall   send_command
     lcall   short_delay         ; wait for more than 39 us
 
-    mov     LCD_BUS, #10000100B ; set cursor on the 5th position in 1st line
+    ; number printing
+    mov     LCD_BUS, #10000100B ; set cursor on the 5th position in 1st line (address 0x4 in DDRAM)
     lcall   send_command
     lcall   short_delay         ; wait for more than 39 us
 
@@ -46,9 +47,38 @@ initial_wait:
 
     mov     LCD_BUS, #'7'       ; write digit "7"
     lcall   send_data
-    lcall   long_delay
+    lcall   long_delay          ; wait for more than 1.53 ms
 
     mov     LCD_BUS, #'1'       ; write digit "1"
+    lcall   send_data
+    lcall   long_delay          ; wait for more than 1.53 ms
+
+    ; name printing
+    mov     LCD_BUS, #11000001B ; set cursor on the 2nd position in 2nd line (address 0x41 in DDRAM)
+    lcall   send_command
+    lcall   short_delay         ; wait for more than 39 us
+
+    mov     LCD_BUS, #'M'       ; write letter "M"
+    lcall   send_data
+    lcall   long_delay          ; wait for more than 1.53 ms
+
+    mov     LCD_BUS, #'a'       ; write letter "a"
+    lcall   send_data
+    lcall   long_delay          ; wait for more than 1.53 ms
+
+    mov     LCD_BUS, #'c'       ; write letter "c"
+    lcall   send_data
+    lcall   long_delay          ; wait for more than 1.53 ms
+
+    mov     LCD_BUS, #'i'       ; write letter "i"
+    lcall   send_data
+    lcall   long_delay          ; wait for more than 1.53 ms
+
+    mov     LCD_BUS, #'e'       ; write letter "e"
+    lcall   send_data
+    lcall   long_delay          ; wait for more than 1.53 ms
+
+    mov     LCD_BUS, #'j'       ; write letter "j"
     lcall   send_data
 
     jmp     $                   ; stay in infinte loop
