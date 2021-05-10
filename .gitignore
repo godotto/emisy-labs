@@ -4,3 +4,6 @@
 
 # LaTeX build files
 *.synctex.gz
+
+# lab manuals
+EMISY_L*
