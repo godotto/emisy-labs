@@ -86,6 +86,68 @@ of demultiplexer are loaded with R0 value (first parameter of function) and bus 
 and return from function. Now display 2 should show digit 5.
 
 \section{Task 2}
+\subsection{Code}
+\ttfamily
+; define constants\\
+; DISPLAY\_BUS is port to which cathodes of displays are connected\\
+; DECODER\_CS is decoder's chip select pin\\
+; DECODER\_ADDR decoder's (demultiplexer) address pins; in fact only P3.0 and P3.1 are used\\
+\\
+DISPLAY\_BUS     equ     P1\\
+DECODER\_CS      equ     P2.0\\
+DECODER\_ADDR    equ     P3\\
+\\
+;-----------------------------start-----------------------------------\\
+    mov     DISPLAY\_BUS, \#11111111b ; set all GPIO pins in P1 in order to turn off the display\\
+    jmp     init\\
+\\
+    ; interrupt handler\\
+    org     0Bh                         ; write instruction to 0xB address (interrupt handler)\\
+\\
+    clr     DECODER\_CS                  ; turn off the decoder\\
+    mov     DECODER\_ADDR, \#3            ; select active display with demultiplexer\\
+    xrl     DISPLAY\_BUS, \#10000000b     ; use xor on display bus to change the most significant bit to make segment blinking\\
+    setb    DECODER\_CS                  ; turn on demultiplexer (ergo turn on display)\\
+\\
+    mov     TL0, \#0DFh                   ; restore timer\\
+    mov     TH0, \#0B1h\\
+\\
+    reti\\
+    \\
+init:\\
+; timer T0 configuration\\
+    setb    TR0                 ; turn on T0 timer\\
+    mov     TMOD, \#00000001b    ; set mode 1, count internal clock cycles, do not react in external interrupts\\
+    setb    ET0                 ; enable overflow interrupt\\
+    setb    EA                  ; enable global interrupt\\
+\\
+    mov     TH0, \#0B1h\\
+    mov     TL0, \#0DFh           ; load timer with 0xFFFF - 20000 in order to set timer to 20 ms\\
+\\
+    jmp     \$
+
+\rmfamily
+\subsection{Code description}
+In the beginning all P1 port's pins are set to make sure that displays are in initial state.
+After that being done, program jumps to init section where timer is initialized. TR0 bit is set
+to turn on T0 timer. Then program loads 00000001$_2$ to TMOD register. Only lower half of that register
+concerns T0 timer. Two least significant bits are responsible for selecting mode. 01$_2$ sets mode 1, 
+a 16-bit mode (i.e. both TH0 and TL0 registers work as 8-bit regsiters). Two most significant bits of this nibble
+are responsible for not reacting on external interrupts and counting internal clock cycles.
+
+The last settings are ET0 and EA bits of TCON register (both bits are set). They enablr overflow interrupt and
+global interrupt, respectively. When configuration is being done, program loads TH0 register with B1$_{16}$
+and TL0 with DF$_{16}$. The task was to wait 20 ms between each switching on/off the segment, so timer's registers
+have to be loaded with FFFF$_{16}$ - 20000$_{10}$ which is equal to DFB1$_{16}$. Timer increments value in each machine cycle
+and when overflow happens interrupt is being sent and then handled. Because of that maximal possible value has to be
+substracted by 20000 -- length of delay in microseconds -- to get proper starting value.
+
+From that moment timer starts to work and program stays at loop until interrupt happens. When it happens, program jumps
+to 0xB in memory to execute handler's code. Sequence of turing on segment is the same as previously, so it does not need
+further clarification. However, this time segment has to blink, so pin's state has to change into opposite one with each
+timer's cycle. For that purpose logical XOR function may be used -- in this case the most significant bit (decimal point segment) is changing state
+with each handler execution. In the end timer is being restored and program returns to the infinite loop.
+
 
 
 \end{document}
