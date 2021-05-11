@@ -1,0 +1,91 @@
+\documentclass{article}
+
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\title{Using seven segment LED display in multiplexing in EdSim -- an EMISY laboratory}
+\author{Maciej Marcinkiewicz (300371)}
+\date{11th May 2021}
+
+\newgeometry{lmargin=3.2cm, rmargin=3.2cm, bmargin=2.5cm}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\subsection{Brief description}
+Laboratory's main purpose was to learn how to handle 7-segment LED displays. The task
+was to use 8051 microcontroller to display characters on 4 such displays. Everything
+had to be done in EdSim5 simulator.
+
+\subsection{Schematic}
+
+\subsection{Hardware description}
+Microcontroller (Atmel's AT89C4051) is connected to 5 V source and is equipped with 12 MHz clock and 
+simple resetting circuit. LED displays' cathodes are connected to P1 GPIO port. Common anodes
+are connected to outputs of simple 2-address demultiplexer. They are connected through inverters
+and BJT transitors. Demultiplexer's chip select pin is connected to P2.0 pin. Address pins
+A0 and A1 are connected to P3.0 and P3.1 pins, respectively.
+
+Demultiplexer is used to select active LED display. Display's segments are turned on by
+sinking selected segment's pins to GPIO. Displays have common anodes, so in order to
+turn on a segment one has to clear corresponding pin, not set as it may appear more intuitive.
+
+\section{Task 1}
+\subsection{Assembly code}
+\ttfamily
+; define constants\\
+; DISPLAY\_BUS is port to which cathodes of displays are connected\\
+; DECODER\_CS is decoder's chip select pin\\
+; DECODER\_ADDR decoder's (demultiplexer) address pins; in fact only P3.0 and P3.1 are used\\
+\\
+DISPLAY\_BUS     equ     P1\\
+DECODER\_CS      equ     P2.0\\
+DECODER\_ADDR    equ     P3\\
+\\
+;-----------------------------start-----------------------------------\\
+    mov     DISPLAY\_BUS, \#11111111b ; set all GPIO pins in P1 in order to turn off the display\\
+\\
+    mov     R0, \#2                  ; activate 3rd display\\
+    mov     R1, \#10010010b          ; set pins to turn on segments which will show digit 5\\
+    lcall   show\_digit              ; call function: R0 - active display; R1 - segments to display\\
+\\
+    jmp     \$                       ; infinite loop\\
+\\
+; subroutine which turns on selected segments in selected display\\
+show\_digit:\\
+    clr     DECODER\_CS          ; turn off the decoder\\
+    mov     DECODER\_ADDR, R0    ; select active display with demultiplexer\\
+    mov     DISPLAY\_BUS, R1     ; set cathodes of display to turn on selected segments\\
+    setb    DECODER\_CS          ; turn on demultiplexer (ergo turn on display)\\
+\\
+    ret                          ; return from function
+
+\subsection{Code description}
+\rmfamily
+Program starts with defining names for GPIO ports/pins in order to have clean and readable
+code. In the beginning P1 port is written with 11111111$_2$ because 1 on each pin corresponds
+to turned off segment. Later in this code program will set pins to 0 which will activate segments.
+
+To make possible turning on any segments on any selected display, I have created show\_digit
+subroutine. It requires to pass number of display (staring from 0) to the R0 register
+and information about segments which will be turned on to the R1 register. In my case
+I have selected display 2 and digit 5 to be shown.
+
+Digit 5 is being displayed by turning on segments a, c, d, f and g. That is why
+10010010$_2$ has been loaded to the R0 register. After passing parameters and calling the function
+an endless loop has been set up to keep digit on the display.
+
+Regarding show\_digit subroutine, it starts with CS pin clearing. It is done to make sure
+that display will not show anything before setting up data. CS pin is responsible for
+turning on demultiplexer. When CS is cleared it ignores input data. Then address pins
+of demultiplexer are loaded with R0 value (first parameter of function) and bus for dislpay
+(P1 port) is loader with R1 value (second parameter). The last step is turing on demultiplexer
+and return from function. Now display 2 should show digit 5.
+
+\section{Task 2}
+
+
+\end{document}
