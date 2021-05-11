@@ -25,11 +25,11 @@ had to be done in EdSim5 simulator.
 \subsection{Hardware description}
 Microcontroller (Atmel's AT89C4051) is connected to 5 V source and is equipped with 12 MHz clock and 
 simple resetting circuit. LED displays' cathodes are connected to P1 GPIO port. Common anodes
-are connected to outputs of simple 2-address demultiplexer. They are connected through inverters
-and BJT transitors. Demultiplexer's chip select pin is connected to P2.0 pin. Address pins
+are connected to outputs of simple 2-address decoder. They are connected through inverters
+and BJT transitors. Decoder's chip select pin is connected to P2.0 pin. Address pins
 A0 and A1 are connected to P3.0 and P3.1 pins, respectively.
 
-Demultiplexer is used to select active LED display. Display's segments are turned on by
+Decoder is used to select active LED display. Display's segments are turned on by
 sinking selected segment's pins to GPIO. Displays have common anodes, so in order to
 turn on a segment one has to clear corresponding pin, not set as it may appear more intuitive.
 
@@ -39,7 +39,7 @@ turn on a segment one has to clear corresponding pin, not set as it may appear m
 ; define constants\\
 ; DISPLAY\_BUS is port to which cathodes of displays are connected\\
 ; DECODER\_CS is decoder's chip select pin\\
-; DECODER\_ADDR decoder's (demultiplexer) address pins; in fact only P3.0 and P3.1 are used\\
+; DECODER\_ADDR decoder's (decoder) address pins; in fact only P3.0 and P3.1 are used\\
 \\
 DISPLAY\_BUS     equ     P1\\
 DECODER\_CS      equ     P2.0\\
@@ -57,9 +57,9 @@ DECODER\_ADDR    equ     P3\\
 ; subroutine which turns on selected segments in selected display\\
 show\_digit:\\
     clr     DECODER\_CS          ; turn off the decoder\\
-    mov     DECODER\_ADDR, R0    ; select active display with demultiplexer\\
+    mov     DECODER\_ADDR, R0    ; select active display with decoder\\
     mov     DISPLAY\_BUS, R1     ; set cathodes of display to turn on selected segments\\
-    setb    DECODER\_CS          ; turn on demultiplexer (ergo turn on display)\\
+    setb    DECODER\_CS          ; turn on decoder (ergo turn on display)\\
 \\
     ret                          ; return from function
 
@@ -80,9 +80,9 @@ an endless loop has been set up to keep digit on the display.
 
 Regarding show\_digit subroutine, it starts with CS pin clearing. It is done to make sure
 that display will not show anything before setting up data. CS pin is responsible for
-turning on demultiplexer. When CS is cleared it ignores input data. Then address pins
-of demultiplexer are loaded with R0 value (first parameter of function) and bus for dislpay
-(P1 port) is loader with R1 value (second parameter). The last step is turing on demultiplexer
+turning on decoder. When CS is cleared it ignores input data. Then address pins
+of decoder are loaded with R0 value (first parameter of function) and bus for dislpay
+(P1 port) is loader with R1 value (second parameter). The last step is turing on decoder
 and return from function. Now display 2 should show digit 5.
 
 \section{Task 2}
@@ -91,7 +91,7 @@ and return from function. Now display 2 should show digit 5.
 ; define constants\\
 ; DISPLAY\_BUS is port to which cathodes of displays are connected\\
 ; DECODER\_CS is decoder's chip select pin\\
-; DECODER\_ADDR decoder's (demultiplexer) address pins; in fact only P3.0 and P3.1 are used\\
+; DECODER\_ADDR decoder's (decoder) address pins; in fact only P3.0 and P3.1 are used\\
 \\
 DISPLAY\_BUS     equ     P1\\
 DECODER\_CS      equ     P2.0\\
@@ -105,9 +105,9 @@ DECODER\_ADDR    equ     P3\\
     org     0Bh                         ; write instruction to 0xB address (interrupt handler)\\
 \\
     clr     DECODER\_CS                  ; turn off the decoder\\
-    mov     DECODER\_ADDR, \#3            ; select active display with demultiplexer\\
+    mov     DECODER\_ADDR, \#3            ; select active display with decoder\\
     xrl     DISPLAY\_BUS, \#10000000b     ; use xor on display bus to change the most significant bit to make segment blinking\\
-    setb    DECODER\_CS                  ; turn on demultiplexer (ergo turn on display)\\
+    setb    DECODER\_CS                  ; turn on decoder (ergo turn on display)\\
 \\
     mov     TL0, \#0DFh                   ; restore timer\\
     mov     TH0, \#0B1h\\
@@ -154,7 +154,7 @@ with each handler execution. In the end timer is being restored and program retu
 ; define constants\\
 ; DISPLAY\_BUS is port to which cathodes of displays are connected\\
 ; DECODER\_CS is decoder's chip select pin\\
-; DECODER\_ADDR decoder's (demultiplexer) address pins; in fact only P3.0 and P3.1 are used\\
+; DECODER\_ADDR decoder's (decoder) address pins; in fact only P3.0 and P3.1 are used\\
 \\
 DISPLAY\_BUS     equ     P1\\
 DECODER\_CS      equ     P2.0\\
@@ -237,9 +237,9 @@ init:\\
 ; subroutine which turns on selected segments in selected display\\
 show\_digit:\\
     clr     DECODER\_CS          ; turn off the decoder\\
-    mov     DECODER\_ADDR, R1    ; select active display with demultiplexer\\
+    mov     DECODER\_ADDR, R1    ; select active display with decoder\\
     mov     DISPLAY\_BUS, R2     ; set cathodes of display to turn on selected segments\\
-    setb    DECODER\_CS          ; turn on demultiplexer (ergo turn on display)\\
+    setb    DECODER\_CS          ; turn on decoder (ergo turn on display)\\
 \\
     ret                         ; return from function
 
@@ -261,8 +261,8 @@ In that way program displays digits in a sequence display 0 - display 1 - displa
 
 \section{Final questions}
 \subsection*{Describe how is a display selected in EDSIM simulator?}
-Display is selected through demultiplexer. Microcontroller provides information to the address
-pins, demultiplexer turns on proper output pin. Selected pin activates BJT switch and in this
+Display is selected through decoder. Microcontroller provides information to the address
+pins, decoder turns on proper output pin. Selected pin activates BJT switch and in this
 way provides voltage to the common anode of the display.
 
 \subsection*{What is the difference between common anode and common cathode LED displays in terms of interfacing them with MCU?}
