@@ -259,5 +259,33 @@ restores the timer and returns to the infinite loop where program waits for the 
 
 In that way program displays digits in a sequence display 0 - display 1 - display 2 - display 3 (1-7-1-0).
 
+\section{Final questions}
+\subsection*{Describe how is a display selected in EDSIM simulator?}
+Display is selected through demultiplexer. Microcontroller provides information to the address
+pins, demultiplexer turns on proper output pin. Selected pin activates BJT switch and in this
+way provides voltage to the common anode of the display.
+
+\subsection*{What is the difference between common anode and common cathode LED displays in terms of interfacing them with MCU?}
+As it was described in the introduction, common anode dislpay requires to clear bits
+corresponding to the segments' cathodes to turn on selected segments. In common
+cathode LED display it has to be done in the opposite way -- to turn on segment GPIO pin
+have to provide voltage.
+
+\subsection*{How can be a timer peripheral used to generate precise time intervals (precise delays)?}
+Timer's registers can be loaded with value of FFFF$_{16}$ - desired delay in microseconds (in the case
+of 12 MHz clock) and overflow may be used as an interrupt signal. Timer increments value in
+register with each machine cycle, so flag will be raised after the amount of time we desired.
+
+\subsection*{How does multiplexing driving mode of LED displays work? Compare it with static driving mode of LED displays in terms 
+of required GPIO pins and current consumption. When does it make sense to use multiplexing and when does it not?}
+In multiplexing driving mode microcontroller turns on displays in a sequence with such small delays
+that it is barely visible for eye and creates an illusion of a static image. For us it is
+not a problem, however taking a photo of such display will reveal how this technique works
+and displayed characters will not appear in the photo in proper way. This wil not happen
+when LED displays are driven staticly. However this technique requires more pins and more
+current as microcontroller has to provide it constantly.
+
+\section*{Declaration of authorship}
+I declare that this piece of work which is the basis for recognition of achieving learning outcomes in the EMISY course was completed on my own.
 
 \end{document}

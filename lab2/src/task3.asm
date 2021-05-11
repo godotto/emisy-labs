@@ -67,6 +67,7 @@ display3:
     reti
 
 init:
+    mov     DISPLAY_BUS, #11111111b ; set all GPIO pins in P1 in order to turn off the display
 ; timer T0 configuration
     setb    TR0                 ; turn on T0 timer
     mov     TMOD, #00000001b    ; set mode 1, count internal clock cycles, do not react in external interrupts
