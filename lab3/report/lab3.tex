@@ -157,6 +157,46 @@ After printing all letters, program stays in the another loop. This time it wait
 the SW pin which is of course being set after releasing the button. When program exits the loop
 it goes back to not\_pressed label when screen is cleared and once again waits for clearing the SW pin.
 
+\section{Task 2}
+\subsection{Assembly code}
+\ttfamily
+; define constants: \\
+; MATRIX\_BUS is a port connected to the keyboard matrix's pins\\
+; LED is the first LED from the LED bank\\
+\\
+MATRIX\_BUS  equ     P0\\
+LED         equ     P1.0\\
+\\
+    jmp     init    ; jump to the initialization\\
+\\
+    ; interrupt handler\\
+    org     013h         ; write instruction to 0xB address (interrupt handler)\\
+    xrl     LED, \#1     ; use xor on LED pin to change the bit's value to the opposite one\\
+    reti                ; return to the infinite loop\\
+\\
+init:\\
+; global interrupt initialization\\
+    setb    EA                      ; enable global interrupts\\
+    setb    EX1                     ; enable INT1 interrupt\\
+    setb    IT1                     ; set INT1 to work with falling edge of the input signal\\
+\\
+    mov     MATRIX\_BUS, \#01110000B  ; clear all row bits in order to make keyboard working\\
+\\
+    jmp     \$                       ; infinite loop waiting for interrupt
+
+\rmfamily
+
+\subsection{Code description}
+In the beginning macros are being set up and program immiediately jumps to initialization subroutine.
+It enables global interrupts and enables INT1 external interrupt, whose pin is connected to the
+output of AND gate. Gates inputs are matrix's column pins. Finally, INT1 is set to detect falling edge
+and matrix's port is set in a way to clear all row pins. Without the last step keyboard matrix
+would not work properly.
+
+Then program waits for an interrupt in the infinite loop. Interrupt happens when
+any key is pressed. In the interrupt handler subroutine XOR operation with 1 is operated on
+LED pin. With this instruction every handler execution will alter the pin's value.
+
 \section*{Declaration of authorship}
 I declare that this piece of work which is the basis for recognition of achieving learning outcomes in the EMISY course was completed on my own.
 
