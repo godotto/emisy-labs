@@ -1,0 +1,31 @@
+\documentclass{article}
+
+\usepackage{geometry}
+\usepackage{amsmath}
+
+\title{Using LCD display and LEDs with keyboard inputs in EdSim simulator -- an EMISY laboratory}
+\author{Maciej Marcinkiewicz (300371)}
+\date{31st May 2021}
+
+\newgeometry{lmargin=3.2cm, rmargin=3.2cm, bmargin=2.5cm}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\subsection{Brief description}
+Laboratory's main purpose was to learn how to use switches and keyboard matrices
+with microcontrollers and its peripherals. Once again tasks had to be done
+in the EdSim5 simulator.
+
+\subsection{Hardware description}
+Microcontroller (Atmel’s AT89C4051) is connected to 5 V source and is equipped with 12 MHz clock and simple resetting circuit.
+LCD screen's data bus is connected to P1 port. Display's RS and E pins are
+connected to P3.0 and P3.1 pins, respectively. Switch button SW0 from switch
+bank is connected to P2.0 pin.
+
+\section*{Declaration of authorship}
+I declare that this piece of work which is the basis for recognition of achieving learning outcomes in the EMISY course was completed on my own.
+
+\end{document}
