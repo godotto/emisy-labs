@@ -25,6 +25,138 @@ LCD screen's data bus is connected to P1 port. Display's RS and E pins are
 connected to P3.0 and P3.1 pins, respectively. Switch button SW0 from switch
 bank is connected to P2.0 pin.
 
+\section{Task 1}
+\subsection{Assembly code}
+\ttfamily
+; define constants: \\
+; LCD\_BUS is LCD's data bus\\
+; LCD\_RS is LCD's R/S pin\\
+; LCD\_E is LCD's E pin\\
+; SW is pin connected to switch from the switch bank\\
+\\
+LCD\_BUS     equ     P1\\
+LCD\_RS      equ     P3.0\\
+LCD\_E       equ     P3.1\\
+SW          equ     P2.0\\
+\\
+mov     R0, \#20     ; initialization - wait for approx. 30 ms (or even slightly more)\\
+\\
+initial\_wait:\\
+    lcall   long\_delay          ; call function which waits for more than 1.53 ms\\
+    djnz    R0, initial\_wait    ; loop that will perform actions 10 times\\
+\\
+    mov     LCD\_BUS, \#00111000B ; function set\\
+    lcall   send\_command\\
+    lcall   short\_delay         ; wait for more than 39 us\\
+\\
+    mov     LCD\_BUS, \#00001110B ; turn display on\\
+    lcall   send\_command\\
+    lcall   short\_delay         ; wait for more than 39 us\\
+\\
+    mov     LCD\_BUS, \#00000110B ; entry set mode\\
+    lcall   send\_command\\
+    lcall   short\_delay         ; wait for more than 39 us\\
+\\
+not\_pressed:\\
+    mov     LCD\_BUS, \#00000001B\\
+    lcall   send\_command\\
+    lcall   short\_delay         ; wait for more than 39 us\\
+    jb      SW, \$               ; if button is not pressed stay here with blank display else go further to display name\\
+    \\
+    mov     LCD\_BUS, \#'M'       ; write letter "M"\\
+    lcall   send\_data\\
+    lcall   long\_delay          ; wait for more than 1.53 ms\\
+\\
+    mov     LCD\_BUS, \#'a'       ; write letter "a"\\
+    lcall   send\_data\\
+    lcall   long\_delay          ; wait for more than 1.53 ms\\
+\\
+    mov     LCD\_BUS, \#'c'       ; write letter "c"\\
+    lcall   send\_data\\
+    lcall   long\_delay          ; wait for more than 1.53 ms\\
+\\
+    mov     LCD\_BUS, \#'i'       ; write letter "i"\\
+    lcall   send\_data\\
+    lcall   long\_delay          ; wait for more than 1.53 ms\\
+\\
+    mov     LCD\_BUS, \#'e'       ; write letter "e"\\
+    lcall   send\_data\\
+    lcall   long\_delay          ; wait for more than 1.53 ms\\
+\\
+    mov     LCD\_BUS, \#'j'       ; write letter "j"\\
+    lcall   send\_data\\
+    lcall   short\_delay         ; wait for more than 39 us\\
+\\
+    jnb     SW, \$               ; stay here if button is pressed, else go to clear it\\
+    jmp     not\_pressed\\
+\\
+send\_command:       ; send command from LCD's data bus\\
+    clr     LCD\_RS  ; set mode to command mode\\
+    setb    LCD\_E   ; get data from bus\\
+    clr     LCD\_E\\
+    ret\\
+\\
+send\_data:          ; send character data from LCD's data bus\\
+    setb    LCD\_RS  ; set mode to write mode\\
+    setb    LCD\_E   ; get data from bus\\
+    clr     LCD\_E\\
+    ret\\
+\\
+long\_delay:         ; wait for approx. 1.53 ms: (256 us * 2 + 1 us) * 3 + 2 us + 3 us + 1 us\\
+    mov     R1, \#3  \\
+\\
+inner\_loop\_long\_delay:\\
+    mov     R2, \#256\\
+    djnz    R2, \$                       ; loop that will perform actions 256 times\\
+\\
+    djnz    R1, inner\_loop\_long\_delay   ; loop that will perform actions 3 times\\
+    ret\\
+\\
+short\_delay:            ; wait for approx. 39 us: 1 us + 18 us * 2 + 2 us\\
+    mov     R0, \#18\\
+    djnz    R0, \$       ; loop that will perform actions 18 times\\
+    ret
+
+\rmfamily
+
+\subsection{Code description}
+\emph{Part of description is from the lab 1}\\
+Program starts with constants definition. In order to make the code more readable,
+pins has been assigned to mnemonic names. Then the main routine starts with display
+initialization. Assigning immiediate value to the register and decrementing it makes
+a simple loop which is required for delay. In the beginning microcontroller has to wait
+for display at least 30 miliseconds (in order to get proper voltage on display).
+Program calls \texttt{long\_delay} subroutine 20 times in order to wait this amount of time.
+
+\texttt{long\_delay} decrements number 256 to zero three times. It gives
+appoximately 1.53 ms (even more than this). This number is not coincidence -- such delay
+will be used later when several characters will be printed on display.
+
+After 30 ms of delay data bus is filled with value responsible for function set. 
+Display has to be set to two line mode. Then command is being sent by \texttt{send\_command}
+subroutine. It clears RS pin as command is being sent, not data about character. In the end
+it sets and then clears E pin. It is a signal for display to get data from data bus. The last
+step is a short delay before the next command. \texttt{short\_delay} subroutine
+is even simpler than \texttt{long\_delay}. It only decrements to zero value of 18.
+It results in delay of more than 39 $\mu$s which is necessary after executing each display's command.
+
+The next command is responsible for turning on the display and showing cursor. It is executed
+in the same manner as function set. The last step in initialization process is entering
+set mode. It is set to increment mode, so characters are appearing one after the other.
+
+When initialization is finished, program clears the screen and waits in the loop until
+the push button is being pressed. When button is pressed, pin is grounded, so program has to
+exit the loop when SW bit is cleared.
+
+If program exits the loop, it is writing letters into display's DDRAM (staring from the first postiton of the first line).
+Letter's code is written to the data bus and \texttt{send\_data} is called.
+It works almost in the same way as \texttt{send\_command}, the only difference is that
+it sets R/S pin to turn on writing mode.
+
+After printing all letters, program stays in the another loop. This time it waits for setting
+the SW pin which is of course being set after releasing the button. When program exits the loop
+it goes back to not\_pressed label when screen is cleared and once again waits for clearing the SW pin.
+
 \section*{Declaration of authorship}
 I declare that this piece of work which is the basis for recognition of achieving learning outcomes in the EMISY course was completed on my own.
 
